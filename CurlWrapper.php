@@ -105,7 +105,7 @@ class CurlWrapper
     /**
      * CurlWrapper::__construct()
      *
-     * Initiates cURL handle and sets default headers and options if needed
+     * Initiates the cURL handle and sets default headers and options if needed
      *
      * @param boolean $setDefaults
      * @return void
@@ -134,7 +134,7 @@ class CurlWrapper
     /**
      * CurlWrapper::__destruct()
      *
-     * Closes and unallocates cURL handle
+     * Closes and unallocates the cURL handle
      *
      * @return void
      */
@@ -147,7 +147,7 @@ class CurlWrapper
     /**
      * CurlWrapper::get()
      *
-     * Makes a 'GET' request to the $url with an optional request data $reqData
+     * Makes the 'GET' request to the $url with an optional request data $reqData
      *
      * @param string $url
      * @param associative array $reqData
@@ -161,7 +161,7 @@ class CurlWrapper
     /**
      * CurlWrapper::post()
      *
-     * Makes a 'POST' request to the $url with an optional request data $reqData
+     * Makes the 'POST' request to the $url with an optional request data $reqData
      *
      * @param string $url
      * @param associative array $reqData
@@ -175,7 +175,7 @@ class CurlWrapper
     /**
      * CurlWrapper::head()
      *
-     * Makes a 'HEAD' request to the $url with an optional request data $reqData
+     * Makes the 'HEAD' request to the $url with an optional request data $reqData
      *
      * @param string $url
      * @param associative array $reqData
@@ -189,7 +189,7 @@ class CurlWrapper
     /**
      * CurlWrapper::request()
      *
-     * Makes a request of the specified $method to the $url with an optional request data $reqData
+     * Makes the request of the specified $method to the $url with an optional request data $reqData
      *
      * @param string $url
      * @param string $method
@@ -222,7 +222,7 @@ class CurlWrapper
     /**
      * CurlWrapper::getResponse()
      *
-     * Returns last transfer's response data
+     * Returns the last transfer's response data
      *
      * @return string|null
      */
@@ -239,7 +239,7 @@ class CurlWrapper
     /**
      * CurlWrapper::reset()
      *
-     * Reinitiates cURL handle and sets default headers and options if needed,
+     * Reinitiates the cURL handle and sets default headers and options if needed,
      * headers, options, req_data, cookies and cookie_file remain untouchable!
      *
      * @param boolean $setDefaults
@@ -262,7 +262,7 @@ class CurlWrapper
     /**
      * CurlWrapper::resetAll()
      *
-     * Reinitiates cURL handle and resets all data,
+     * Reinitiates the cURL handle and resets all data,
      * inlcuding headers, options, req_data, cookies and cookie_file
      *
      * @param boolean $setDefaults
@@ -281,7 +281,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setCookieFile()
      *
-     * Sets file's name to store cookies, throw exception if file is not writable or does'n exists
+     * Sets the file's name to store cookies, throw exception if file is not writable or does'n exists
      *
      * @param string $filename
      * @return void
@@ -299,7 +299,7 @@ class CurlWrapper
     /**
      * CurlWrapper::resetCookieFile()
      *
-     * Resets $this->_cookie_file value to empty string
+     * Resets the $this->_cookie_file value to empty string
      *
      * @return void
      */
@@ -311,7 +311,7 @@ class CurlWrapper
     /**
      * CurlWrapper::addOpt()
      *
-     * Adds pair '$option' => '$value' to $this->_options array
+     * Adds the pair '$option' => '$value' to $this->_options array
      *
      * If $option is array, then it's merged with $this->_options
      * If arrays have the same field names, then the $options array value for that name will overwrite the $this->_options array one
@@ -338,7 +338,7 @@ class CurlWrapper
     /**
      * CurlWrapper::delOpt()
      *
-     * Removes '$option' from $this->_options array
+     * Removes the '$option' from $this->_options array
      *
      * @param integer $option
      * @return void
@@ -354,7 +354,7 @@ class CurlWrapper
     /**
      * CurlWrapper::clearOpts()
      *
-     * Clears $this->_options array
+     * Clears the $this->_options array
      * Don't forget to set all necessary options before new request
      *
      * @return void
@@ -367,7 +367,7 @@ class CurlWrapper
     /**
      * CurlWrapper::addHeader()
      *
-     * Adds pair '$header' => '$value' to $this->_headers array
+     * Adds the pair '$header' => '$value' to $this->_headers array
      *
      * If $header is array, then it's merged with $this->_headers
      * If arrays have the same field names, then the $header array value for that name will overwrite the $this->_headers array one
@@ -398,7 +398,7 @@ class CurlWrapper
     /**
      * CurlWrapper::delHeader()
      *
-     * Removes '$header' from $this->_headers array
+     * Removes the '$header' from $this->_headers array
      *
      * @param string $header
      * @return void
@@ -414,7 +414,7 @@ class CurlWrapper
     /**
      * CurlWrapper::clearHeaders()
      *
-     * Clears $this->_headers array
+     * Clears the $this->_headers array
      * Don't forget to set all necessary headers before new request
      *
      * @return void
@@ -427,7 +427,7 @@ class CurlWrapper
     /**
      * CurlWrapper::addCookie()
      *
-     * Adds pair '$cookie' => '$value' to $this->_cookies array
+     * Adds the pair '$cookie' => '$value' to $this->_cookies array
      *
      * If $cookie is array, then it's merged with $this->_cookies
      * If arrays have the same field names, then the $cookie array value for that name will overwrite the $this->_cookies array one
@@ -457,7 +457,7 @@ class CurlWrapper
     /**
      * CurlWrapper::delCookie()
      *
-     * Removes '$cookie' from $this->_cookies array
+     * Removes the '$cookie' from $this->_cookies array
      *
      * @param string $cookie
      * @return void
@@ -473,7 +473,7 @@ class CurlWrapper
     /**
      * CurlWrapper::clearCookies()
      *
-     * Clears $_cookies array
+     * Clears the $_cookies array
      *
      * @return void
      */
@@ -485,7 +485,7 @@ class CurlWrapper
     /**
      * CurlWrapper::addRequestData()
      *
-     * Adds pair '$name' => '$value' of GET/POST data to $this->_req_data array
+     * Adds the pair '$name' => '$value' of GET/POST data to $this->_req_data array
      *
      * If $name is array, then it's merged with $this->_req_data
      * If arrays have the same field names, then the $name array value for that name will overwrite the $this->_req_data array one
@@ -520,7 +520,7 @@ class CurlWrapper
     /**
      * CurlWrapper::delRequestData()
      *
-     * Removes GET/POST data '$name' from $this->_req_data array
+     * Removes the '$name' from $this->_req_data array
      *
      * @param string $name
      * @return void
@@ -536,7 +536,7 @@ class CurlWrapper
     /**
      * CurlWrapper::clearRequestData()
      *
-     * Clears $this->_req_data array
+     * Clears the $this->_req_data array
      * Don't forget to set all necessary GET/POST data before new request
      *
      * @return void
@@ -549,7 +549,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setUserAgent()
      *
-     * Sets user agent
+     * Sets the contents of the "User-Agent: " header to be used in a HTTP request
      *
      * You can use 'magic' words: 'explorer', 'firefox', 'opera' and 'chrome'
      * to set default CurlWrapper's user agents defined in $this->_user_agents
@@ -570,9 +570,48 @@ class CurlWrapper
     }
 
     /**
+     * CurlWrapper::setReferer()
+     *
+     * Sets the contents of the "Referer: " header to be used in a HTTP request
+     *
+     * @param string $referer
+     * @return void
+     */
+    public function setReferer($referer)
+    {
+        $this->addOpt(CURLOPT_REFERER, $referer);
+    }
+
+    /**
+     * CurlWrapper::setTimeOut()
+     *
+     * Sets the maximum number of seconds to allow cURL functions to execute
+     *
+     * @param integer $seconds
+     * @return void
+     */
+    public function setTimeOut($seconds)
+    {
+        $this->addOpt(CURLOPT_TIMEOUT, $seconds);
+    }
+
+    /**
+     * CurlWrapper::setConnectTimeOut()
+     *
+     * Sets the number of seconds to wait while trying to connect, use 0 to wait indefinitely
+     *
+     * @param integer $seconds
+     * @return void
+     */
+    public function setConnectTimeOut($seconds)
+    {
+        $this->addOpt(CURLOPT_CONNECTTIMEOUT, $seconds);
+    }
+
+    /**
      * CurlWrapper::isError()
      *
-     * Returns cURL's error number
+     * Returns the cURL's error number
      *
      * @return integer
      */
@@ -584,7 +623,7 @@ class CurlWrapper
     /**
      * CurlWrapper::errorMsg()
      *
-     * Returns cURL's error message
+     * Returns the cURL's error message
      *
      * @return string|null
      */
@@ -601,31 +640,31 @@ class CurlWrapper
     /**
      * CurlWrapper::getTransferInfo()
      *
-     * Gets information about the last transfer
+     * Gets the information about the last transfer
      *
      * @param string $key
      * @return associative array|string|null
      * keys are:
-     * -- ['url']                      - Last effective URL
-     * -- ['content_type']             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
-     * -- ['http_code']                - Last received HTTP code
-     * -- ['header_size']              - Total size of all headers received
-     * -- ['request_size']             - Total size of issued requests, currently only for HTTP requests
-     * -- ['filetime']                 - Remote time of the retrieved document, if -1 is returned the time of the document is unknown
-     * -- ['ssl_verify_result']        - Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
-     * -- ['redirect_count']           - Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
-     * -- ['total_time']               - Total transaction time in seconds for last transfer
-     * -- ['namelookup_time']          - Time in seconds until name resolving was complete
-     * -- ['connect_time']             - Time in seconds it took to establish the connection
-     * -- ['pretransfer_time']         - Time in seconds from start until just before file transfer begins
-     * -- ['size_upload']              - Total number of bytes uploaded
-     * -- ['size_download']            - Total number of bytes downloaded
-     * -- ['speed_download']           - Average download speed
-     * -- ['speed_upload']             - Average upload speed
-     * -- ['download_content_length']  - content-length of download, read from Content-Length:  field
-     * -- ['upload_content_length']    - Specified size of upload
-     * -- ['starttransfer_time']       - Time in seconds until the first byte is about to be transferred
-     * -- ['redirect_time']            - Time in seconds of all redirection steps before final transaction was started
+     * -- 'url'                      - Last effective URL
+     * -- 'content_type'             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
+     * -- 'http_code'                - Last received HTTP code
+     * -- 'header_size'              - Total size of all headers received
+     * -- 'request_size'             - Total size of issued requests, currently only for HTTP requests
+     * -- 'filetime'                 - Remote time of the retrieved document, if -1 is returned the time of the document is unknown
+     * -- 'ssl_verify_result'        - Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
+     * -- 'redirect_count'           - Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
+     * -- 'total_time'               - Total transaction time in seconds for last transfer
+     * -- 'namelookup_time'          - Time in seconds until name resolving was complete
+     * -- 'connect_time'             - Time in seconds it took to establish the connection
+     * -- 'pretransfer_time'         - Time in seconds from start until just before file transfer begins
+     * -- 'size_upload'              - Total number of bytes uploaded
+     * -- 'size_download'            - Total number of bytes downloaded
+     * -- 'speed_download'           - Average download speed
+     * -- 'speed_upload'             - Average upload speed
+     * -- 'download_content_length'  - content-length of download, read from Content-Length:  field
+     * -- 'upload_content_length'    - Specified size of upload
+     * -- 'starttransfer_time'       - Time in seconds until the first byte is about to be transferred
+     * -- 'redirect_time'            - Time in seconds of all redirection steps before final transaction was started
      */
     public function getTransferInfo($key = null)
     {
@@ -650,7 +689,7 @@ class CurlWrapper
     /**
      * CurlWrapper::throwError()
      *
-     * Sets error information and throws exception
+     * Sets the error's details and throws the exception
      *
      * @return void
      */
@@ -673,7 +712,7 @@ class CurlWrapper
     /**
      * CurlWrapper::compileHeaders()
      *
-     * Converts $this->_headers array to cURL's option format array
+     * Converts the $this->_headers array to the cURL's option format array
      *
      * @return array|null
      */
@@ -695,7 +734,7 @@ class CurlWrapper
     /**
      * CurlWrapper::compileCookies()
      *
-     * Converts $this->_cookies array to string correct format
+     * Converts the $this->_cookies array to the string correct format
      *
      * @return
      */
@@ -719,7 +758,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setRequestMethod()
      *
-     * Sets request method
+     * Sets the HTTP request method
      *
      * @param string $method
      * @return void
@@ -756,7 +795,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setUrl()
      *
-     * Sets url to request
+     * Sets the url to request
      *
      * @param string $url
      * @return void
@@ -769,7 +808,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setDefaultHeaders()
      *
-     * Sets default headers
+     * Sets the default headers
      *
      * @return void
      */
@@ -786,7 +825,7 @@ class CurlWrapper
     /**
      * CurlWrapper::setDefaultOptions()
      *
-     * Sets default options
+     * Sets the default options
      *
      * @return void
      */
@@ -806,7 +845,7 @@ class CurlWrapper
     /**
      * CurlWrapper::initOptions()
      *
-     * Sets final options and initiates them by curl_setopt_array()
+     * Sets the final options and initiates them by curl_setopt_array()
      *
      * @return void
      */
