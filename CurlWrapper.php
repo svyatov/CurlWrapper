@@ -606,26 +606,26 @@ class CurlWrapper
      * @param string $key
      * @return associative array|string|null
      * keys are:
-     * -- ['url']						- Last effective URL
-     * -- ['content_type']				- Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
-     * -- ['http_code']					- Last received HTTP code
-     * -- ['header_size']				- Total size of all headers received
-     * -- ['request_size']				- Total size of issued requests, currently only for HTTP requests
-     * -- ['filetime']					- Remote time of the retrieved document, if -1 is returned the time of the document is unknown
-     * -- ['ssl_verify_result']			- Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
-     * -- ['redirect_count']			- Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
-     * -- ['total_time']				- Total transaction time in seconds for last transfer
-     * -- ['namelookup_time']			- Time in seconds until name resolving was complete
-     * -- ['connect_time']				- Time in seconds it took to establish the connection
-     * -- ['pretransfer_time']			- Time in seconds from start until just before file transfer begins
-     * -- ['size_upload']				- Total number of bytes uploaded
-     * -- ['size_download']				- Total number of bytes downloaded
-     * -- ['speed_download']			- Average download speed
-     * -- ['speed_upload']				- Average upload speed
-     * -- ['download_content_length']	- content-length of download, read from Content-Length:  field
-     * -- ['upload_content_length']		- Specified size of upload
-     * -- ['starttransfer_time']		- Time in seconds until the first byte is about to be transferred
-     * -- ['redirect_time']				- Time in seconds of all redirection steps before final transaction was started
+     * -- ['url']                      - Last effective URL
+     * -- ['content_type']             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
+     * -- ['http_code']                - Last received HTTP code
+     * -- ['header_size']              - Total size of all headers received
+     * -- ['request_size']             - Total size of issued requests, currently only for HTTP requests
+     * -- ['filetime']                 - Remote time of the retrieved document, if -1 is returned the time of the document is unknown
+     * -- ['ssl_verify_result']        - Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
+     * -- ['redirect_count']           - Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
+     * -- ['total_time']               - Total transaction time in seconds for last transfer
+     * -- ['namelookup_time']          - Time in seconds until name resolving was complete
+     * -- ['connect_time']             - Time in seconds it took to establish the connection
+     * -- ['pretransfer_time']         - Time in seconds from start until just before file transfer begins
+     * -- ['size_upload']              - Total number of bytes uploaded
+     * -- ['size_download']            - Total number of bytes downloaded
+     * -- ['speed_download']           - Average download speed
+     * -- ['speed_upload']             - Average upload speed
+     * -- ['download_content_length']  - content-length of download, read from Content-Length:  field
+     * -- ['upload_content_length']    - Specified size of upload
+     * -- ['starttransfer_time']       - Time in seconds until the first byte is about to be transferred
+     * -- ['redirect_time']            - Time in seconds of all redirection steps before final transaction was started
      */
     public function getTransferInfo($key = null)
     {
