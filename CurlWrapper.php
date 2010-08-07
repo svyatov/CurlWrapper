@@ -9,7 +9,7 @@
  * @copyright 2010 Leonid Svyatov
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version   0.3 $Id$
- * @link      http://svyatov.ru/dev/curl_wrapper/
+ * @link      http://github.com/Svyatov/CurlWrapper
  */
 
 class CurlWrapper
