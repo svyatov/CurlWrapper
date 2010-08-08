@@ -22,14 +22,14 @@ class CurlWrapper
     private $_ch = null;
 
     /**
-     * cURL _error number
+     * cURL error number
      *
      * @var integer|true
      */
     private $_error = 0;
 
     /**
-     * cURL _error message
+     * cURL error message
      *
      * @var string
      */
@@ -43,7 +43,7 @@ class CurlWrapper
     private $_transfer_info = array();
 
     /**
-     * cURL _response data
+     * cURL response data
      *
      * @var string
      */
@@ -867,16 +867,7 @@ class CurlWrapper
                     $parsed_url['query'] = $query;
                 }
 
-                $url = (isset($parsed_url['scheme'])   ?     $parsed_url["scheme"].'://' : '').
-                       (isset($parsed_url['user'])     ?     $parsed_url["user"].':'     : '').
-                       (isset($parsed_url['pass'])     ?     $parsed_url["pass"].'@'     : '').
-                       (isset($parsed_url['host'])     ?     $parsed_url["host"]         : '').
-                       (isset($parsed_url['port'])     ? ':'.$parsed_url["port"]         : '').
-                       (isset($parsed_url['path'])     ?     $parsed_url["path"]         : '').
-                       (isset($parsed_url['query'])    ? '?'.$parsed_url["query"]        : '').
-                       (isset($parsed_url['fragment']) ? '#'.$parsed_url["fragment"]     : '');
-
-                $this->setUrl($url);
+                $this->setUrl($this->_buildUrl($parsed_url));
             }
             else
             {
@@ -904,6 +895,26 @@ class CurlWrapper
         {
             $this->throwError();
         }
+    }
+
+    /**
+     * CurlWrapper::_buildUrl()
+     *
+     * Builds url from associative array maked by parse_str()
+     *
+     * @param associative array $parsedUrl
+     * @return string
+     */
+    private function _buildUrl(array $parsedUrl)
+    {
+        return (isset($parsedUrl['scheme'])   ?     $parsedUrl["scheme"].'://' : '').
+               (isset($parsedUrl['user'])     ?     $parsedUrl["user"].':'     : '').
+               (isset($parsedUrl['pass'])     ?     $parsedUrl["pass"].'@'     : '').
+               (isset($parsedUrl['host'])     ?     $parsedUrl["host"]         : '').
+               (isset($parsedUrl['port'])     ? ':'.$parsedUrl["port"]         : '').
+               (isset($parsedUrl['path'])     ?     $parsedUrl["path"]         : '').
+               (isset($parsedUrl['query'])    ? '?'.$parsedUrl["query"]        : '').
+               (isset($parsedUrl['fragment']) ? '#'.$parsedUrl["fragment"]     : '');
     }
 
 }
