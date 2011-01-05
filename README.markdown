@@ -1,5 +1,3 @@
-CurlWrapper -
-
 # CurlWrapper
 
 Flexible wrapper class for PHP cURL extension (see [http://php.net/curl](http://php.net/curl) for more information about the libcurl extension for PHP)
