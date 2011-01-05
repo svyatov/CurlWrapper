@@ -1,649 +1,308 @@
 <?php
-
 /**
- * CurlWrapper - Flexible wrapper class for the PHP cURL extension
+ * CurlWrapper - Flexible wrapper class for PHP cURL extension
  *
- * PHP version 5
- *
- * @author    Leonid Svyatov <leonid@svyatov.ru>
- * @copyright 2010 Leonid Svyatov
- * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version   0.4 $Id$
- * @link      http://github.com/Svyatov/CurlWrapper
+ * @author Leonid Svyatov <leonid@svyatov.ru>
+ * @copyright 2010-2011, Leonid Svyatov
+ * @license http://www.opensource.org/licenses/mit-license.html MIT License
+ * @version 1.0.8 / 05.01.2011
+ * @link http://github.com/Svyatov/CurlWrapper
  */
-
 class CurlWrapper
 {
     /**
-     * cURL handle
-     *
-     * @var cURL handle
+     * @var handle cURL handle
      */
-    private $_ch = null;
+    protected $ch = null;
 
     /**
-     * cURL error number
-     *
-     * @var integer|true
+     * @var string Filename of a writable file for cookies storage
      */
-    private $_error = 0;
+    protected $cookieFile = '';
 
     /**
-     * cURL error message
-     *
-     * @var string
+     * @var array Cookies to send
      */
-    private $_error_msg = '';
+    protected $cookies = array();
 
     /**
-     * cURL transfer info
-     *
-     * @var associative array
+     * @var array Headers to send
      */
-    private $_transfer_info = array();
+    protected $headers = array();
 
     /**
-     * cURL response data
-     *
-     * @var string
+     * @var array cURL options
      */
-    private $_response = '';
+    protected $options = array();
 
     /**
-     * Filename of a writable file for cookie storage
-     *
-     * @var string
+     * @var array Predefined user agents. The 'firefox' value is used by default
      */
-    private $_cookie_file = '';
-
-    /**
-     * cURL options
-     *
-     * @var associative array
-     */
-    private $_options = array();
-
-    /**
-     * Headers to send
-     *
-     * @var associative array
-     */
-    private $_headers = array();
-
-    /**
-     * Cookies to send
-     *
-     * @var associative array
-     */
-    private $_cookies = array();
-
-    /**
-     * GET/POST data to send
-     *
-     * @var associative array
-     */
-    private $_req_data = array();
-
-    /**
-     * Some popular user agents
-     *
-     * The 'firefox' value is used by default
-     *
-     * @var associative array
-     */
-    private $_user_agents = array(
+    protected $predefinedUserAgents = array(
         // IE 8.0
-        'explorer' => 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-        // Firefox 3.6.4
-        'firefox'  => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.4',
+        'ie'       => 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
+        // Firefox 3.6.10
+        'firefox'  => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10',
         // Opera 10.6
         'opera'    => 'Opera/9.80 (Windows NT 5.1; U; en-US) Presto/2.5.24 Version/10.6',
         // Chrome 5.0.375.70
-        'chrome'   => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.70 Safari/533.4'
+        'chrome'   => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.70 Safari/533.4',
+        // Google Bot
+        'bot'      => 'Googlebot/2.1 (+http://www.google.com/bot.html)',
     );
 
     /**
-     * CurlWrapper::__construct()
-     *
-     * Initiates the cURL handle and sets default headers and options if needed
-     *
-     * @param boolean $setDefaults
-     * @return void
+     * @var array GET/POST params to send
      */
-    public function __construct($setDefaults = true)
+    protected $requestParams = array();
+
+    /**
+     * @var string cURL response data
+     */
+    protected $response = '';
+
+    /**
+     * @var array cURL transfer info
+     */
+    protected $transferInfo = array();
+
+    /**
+     * Initiates the cURL handle
+     */
+    public function __construct()
     {
-        if (!function_exists('curl_init'))
-        {
-            $this->throwError('cURL library is not installed.');
+        if (!function_exists('curl_init')) {
+            $this->throwException('cURL library is not installed.');
         }
 
-        $this->_ch = curl_init();
+        $this->ch = curl_init();
 
-        if (!$this->_ch)
-        {
-            $this->throwError();
-        }
-
-        if ($setDefaults && !$this->_error)
-        {
-            $this->setDefaultHeaders();
-            $this->setDefaultOptions();
+        if (!$this->ch) {
+            $this->throwException();
         }
     }
 
     /**
-     * CurlWrapper::__destruct()
-     *
      * Closes and unallocates the cURL handle
-     *
-     * @return void
      */
     public function __destruct()
     {
-        curl_close($this->_ch);
-        $this->_ch = null;
+        curl_close($this->ch);
+        $this->ch = null;
     }
 
     /**
-     * CurlWrapper::get()
-     *
-     * Makes the 'GET' request to the $url with an optional request data $reqData
-     *
-     * @param string $url
-     * @param associative array $reqData
-     * @return string|null
-     */
-    public function get($url, $reqData = null)
-    {
-        return $this->request($url, 'GET', $reqData);
-    }
-
-    /**
-     * CurlWrapper::post()
-     *
-     * Makes the 'POST' request to the $url with an optional request data $reqData
-     *
-     * @param string $url
-     * @param associative array $reqData
-     * @return string|null
-     */
-    public function post($url, $reqData = null)
-    {
-        return $this->request($url, 'POST', $reqData);
-    }
-
-    /**
-     * CurlWrapper::head()
-     *
-     * Makes the 'HEAD' request to the $url with an optional request data $reqData
-     *
-     * @param string $url
-     * @param associative array $reqData
-     * @return string|null
-     */
-    public function head($url, $reqData = null)
-    {
-        return $this->request($url, 'HEAD', $reqData);
-    }
-
-    /**
-     * CurlWrapper::request()
-     *
-     * Makes the request of the specified $method to the $url with an optional request data $reqData
-     *
-     * @param string $url
-     * @param string $method
-     * @param associative array $reqData
-     * @return string|null
-     */
-    public function request($url, $method = 'GET', $reqData = null)
-    {
-        if ($this->_error)
-        {
-            return null;
-        }
-
-        $this->setURL($url);
-        $this->setRequestMethod($method);
-        $this->addRequestData($reqData);
-
-        $this->initOptions();
-
-        if (!$this->_response = curl_exec($this->_ch))
-        {
-            $this->throwError();
-        }
-
-        $this->_transfer_info = curl_getinfo($this->_ch);
-
-        return $this->_response;
-    }
-
-    /**
-     * CurlWrapper::getResponse()
-     *
-     * Returns the last transfer's response data
-     *
-     * @return string|null
-     */
-    public function getResponse()
-    {
-        if (empty($this->_response))
-        {
-            return null;
-        }
-
-        return $this->_response;
-    }
-
-    /**
-     * CurlWrapper::reset()
-     *
-     * Reinitiates the cURL handle and sets default headers and options if needed,
-     * headers, options, req_data, cookies and cookie_file remain untouchable!
-     *
-     * @param boolean $setDefaults
-     * @return void
-     */
-    public function reset($setDefaults = false)
-    {
-        if ($this->_ch)
-        {
-            $this->__destruct();
-        }
-
-        $this->_error = false;
-        $this->_error_msg = '';
-        $this->_transfer_info = array();
-
-        $this->__construct($setDefaults);
-    }
-
-    /**
-     * CurlWrapper::resetAll()
-     *
-     * Reinitiates the cURL handle and resets all data,
-     * inlcuding headers, options, req_data, cookies and cookie_file
-     *
-     * @param boolean $setDefaults
-     * @return void
-     */
-    public function resetAll($setDefaults = true)
-    {
-        $this->clearHeaders();
-        $this->clearOpts();
-        $this->clearRequestData();
-        $this->clearCookies();
-        $this->resetCookieFile();
-        $this->reset($setDefaults);
-    }
-
-    /**
-     * CurlWrapper::setCookieFile()
-     *
-     * Sets the file's name to store cookies, throw exception if file is not writable or does'n exists
-     *
-     * @param string $filename
-     * @return void
-     */
-    public function setCookieFile($filename)
-    {
-        if (!is_writable($filename))
-        {
-            $this->throwError('Cookie file "'.$filename.'" is not writable or does\'n exists!');
-        }
-
-        $this->_cookie_file = $filename;
-    }
-
-    /**
-     * CurlWrapper::resetCookieFile()
-     *
-     * Resets the $this->_cookie_file value to empty string
-     *
-     * @return void
-     */
-    public function resetCookieFile()
-    {
-        $this->_cookie_file = '';
-    }
-
-    /**
-     * CurlWrapper::addOpt()
-     *
-     * Adds the pair '$option' => '$value' to $this->_options array
-     *
-     * If $option is array, then it's merged with $this->_options
-     * If arrays have the same field names, then the $options array value for that name will overwrite the $this->_options array one
-     *
-     * @param mixed $option
-     * @param mixed $value
-     * @return void
-     */
-    public function addOpt($option, $value = null)
-    {
-        if (is_array($option))
-        {
-            foreach ($option as $opt => $val)
-            {
-                $this->_options[$opt] = $val;
-            }
-        }
-        else
-        {
-            $this->_options[$option] = $value;
-        }
-    }
-
-    /**
-     * CurlWrapper::delOpt()
-     *
-     * Removes the '$option' from $this->_options array
-     *
-     * @param integer $option
-     * @return void
-     */
-    public function delOpt($option)
-    {
-        if (isset($this->_options[$option]))
-        {
-            unset($this->_options[$option]);
-        }
-    }
-
-    /**
-     * CurlWrapper::clearOpts()
-     *
-     * Clears the $this->_options array
-     * Don't forget to set all necessary options before new request
-     *
-     * @return void
-     */
-    public function clearOpts()
-    {
-        $this->_options = array();
-    }
-
-    /**
-     * CurlWrapper::addHeader()
-     *
-     * Adds the pair '$header' => '$value' to $this->_headers array
-     *
-     * If $header is array, then it's merged with $this->_headers
-     * If arrays have the same field names, then the $header array value for that name will overwrite the $this->_headers array one
+     * Adds the pair $cookie=>$value to cookies array
+     * If $cookie is array, then it's merged with cookies array
      *
      * Examples:
-     * -- $header = 'Accept-Charset', $value = 'windows-1251,utf-8;q=0.7,*;q=0.7'
-     * -- $header = 'Pragma', $value = ''
-     *
-     * @param mixed $header
-     * @param string $value
-     * @return void
-     */
-    public function addHeader($header, $value = null)
-    {
-        if (is_array($header))
-        {
-            foreach ($header as $hdr => $val)
-            {
-                $this->_headers[$hdr] = $val;
-            }
-        }
-        else
-        {
-            $this->_headers[$header_type] = $value;
-        }
-    }
-
-    /**
-     * CurlWrapper::delHeader()
-     *
-     * Removes the '$header' from $this->_headers array
-     *
-     * @param string $header
-     * @return void
-     */
-    public function delHeader($header)
-    {
-        if (isset($this->_headers[$header]))
-        {
-            unset($this->_headers[$header]);
-        }
-    }
-
-    /**
-     * CurlWrapper::clearHeaders()
-     *
-     * Clears the $this->_headers array
-     * Don't forget to set all necessary headers before new request
-     *
-     * @return void
-     */
-    public function clearHeaders()
-    {
-        $this->_headers = array();
-    }
-
-    /**
-     * CurlWrapper::addCookie()
-     *
-     * Adds the pair '$cookie' => '$value' to $this->_cookies array
-     *
-     * If $cookie is array, then it's merged with $this->_cookies
-     * If arrays have the same field names, then the $cookie array value for that name will overwrite the $this->_cookies array one
-     *
-     * Examples:
-     * -- $cookie = 'user', $value = 'admin'
+     * $curl->addCookie('user', 'admin');
+     * $curl->addCookie(array('user'=>'admin', 'test'=>1));
      *
      * @param mixed $cookie
      * @param string $value
-     * @return void
      */
     public function addCookie($cookie, $value = null)
     {
-        if (is_array($cookie))
-        {
-            foreach ($cookie as $ck => $val)
-            {
-                $this->_cookies[$ck] = $val;
-            }
-        }
-        else
-        {
-            $this->_cookies[$cookie] = $value;
+        if (is_array($cookie)) {
+            $this->addCookiesAsArray($cookie);
+        } else {
+            $this->cookies[$cookie] = $value;
         }
     }
 
     /**
-     * CurlWrapper::delCookie()
-     *
-     * Removes the '$cookie' from $this->_cookies array
-     *
-     * @param string $cookie
-     * @return void
+     * Merges $cookiesArray with cookies array
+     * @param array $cookiesArray
      */
-    public function delCookie($cookie)
+    public function addCookiesAsArray($cookiesArray)
     {
-        if (isset($this->_cookies[$cookie]))
-        {
-            unset($this->_cookies[$cookie]);
+        foreach ($cookiesArray as $cookie => $value) {
+            $this->cookies[$cookie] = $value;
         }
     }
 
     /**
-     * CurlWrapper::clearCookies()
+     * Adds the pair $header=>$value to headers array
+     * If $header is array, then it's merged with headers array
      *
-     * Clears the $_cookies array
+     * Examples:
+     * $curl->addHeader('Accept-Charset', 'windows-1251,utf-8;q=0.7,*;q=0.7');
+     * $curl->addHeader('Pragma', '');
+     * $curl->addHeader(array('Accept-Charset'=>'windows-1251,utf-8;q=0.7,*;q=0.7', 'Pragma'=>''));
      *
-     * @return void
+     * @param mixed $header
+     * @param string $value
      */
-    public function clearCookies()
+    public function addHeader($header, $value = null)
     {
-        $this->_cookies = array();
+        if (is_array($header)) {
+            $this->addHeadersAsArray($header);
+        } else {
+            $this->headers[$header] = $value;
+        }
     }
 
     /**
-     * CurlWrapper::addRequestData()
+     * Merges $headersArray with headers array
+     * @param array $headersArray
+     */
+    public function addHeadersAsArray($headersArray)
+    {
+        foreach ($headersArray as $header => $value) {
+            $this->headers[$header] = $value;
+        }
+    }
+
+    /**
+     * Adds the pair $option=>$value to options array
+     * If $option is array, then it's merged with options array
+     * @param mixed $option
+     * @param mixed $value
+     */
+    public function addOption($option, $value = null)
+    {
+        if (is_array($option)) {
+            $this->addOptionsAsArray($option);
+        } else {
+            $this->options[$option] = $value;
+        }
+    }
+
+    /**
+     * Merges $optionsArray with options array
+     * @param array $optionArray
+     */
+    public function addOptionsAsArray($optionsArray)
+    {
+        foreach ($optionsArray as $option => $value) {
+            $this->options[$option] = $value;
+        }
+    }
+
+    /**
+     * Adds the pair $name=>$value of GET/POST data to requestParams array
+     * If $name is array, then it's merged with requestParams
+     * If $name is query string, then it's converted to associative array and merged with requestParams
      *
-     * Adds the pair '$name' => '$value' of GET/POST data to $this->_req_data array
-     *
-     * If $name is array, then it's merged with $this->_req_data
-     * If arrays have the same field names, then the $name array value for that name will overwrite the $this->_req_data array one
-     *
-     * If $name is query string, then it's converted to associative array and merged with $this->_req_data
+     * Examples:
+     * $curl->addRequestParam('param', 'test');
+     * $curl->addRequestParam('param=test&otherparam=123');
+     * $curl->addRequestParam(array('param'=>'test', 'otherparam'=>123));
      *
      * @param mixed $name
      * @param string $value
-     * @return void
      */
-    public function addRequestData($name, $value = null)
+    public function addRequestParam($name, $value = null)
     {
-        if (is_array($name))
-        {
-            $this->_req_data = array_merge($this->_req_data, $name);
-        }
-        elseif (is_string($name) && $value === null)
-        {
-            parse_str($name, $req_data);
-
-            if (!empty($req_data))
-            {
-                $this->_req_data = array_merge($this->_req_data, $req_data);
-            }
-        }
-        else
-        {
-            $this->_req_data[$name] = $value;
+        if (is_array($name)) {
+            $this->addRequestParamsAsArray($name);
+        } elseif (is_string($name) && $value === null) {
+            $this->addRequestParamsAsQueryString($name);
+        } else {
+            $this->requestParams[$name] = $value;
         }
     }
 
     /**
-     * CurlWrapper::delRequestData()
-     *
-     * Removes the '$name' from $this->_req_data array
-     *
-     * @param string $name
-     * @return void
+     * Merges $paramsArray with requestParams array
+     * @param array $paramsArray
      */
-    public function delRequestData($name)
+    public function addRequestParamsAsArray($paramsArray)
     {
-        if (isset($this->_req_data[$name]))
-        {
-            unset($this->_req_data[$name]);
+        $this->requestParams = array_merge($this->requestParams, $paramsArray);
+    }
+
+    /**
+     * Converts $queryString to associative array and merges it with requestParams
+     * @param array $paramsArray
+     */
+    public function addRequestParamsAsQueryString($queryString)
+    {
+        parse_str($queryString, $params);
+
+        if (!empty($params)) {
+            $this->requestParams = array_merge($this->requestParams, $params);
         }
     }
 
     /**
-     * CurlWrapper::clearRequestData()
-     *
-     * Clears the $this->_req_data array
-     * Don't forget to set all necessary GET/POST data before new request
-     *
-     * @return void
+     * Clears the cookieFile
      */
-    public function clearRequestData()
+    public function clearCookieFile()
     {
-        $this->_req_data = array();
-    }
-
-    /**
-     * CurlWrapper::setUserAgent()
-     *
-     * Sets the contents of the "User-Agent: " header to be used in a HTTP request
-     *
-     * You can use 'magic' words: 'explorer', 'firefox', 'opera' and 'chrome'
-     * to set default CurlWrapper's user agents defined in $this->_user_agents
-     *
-     * @param string $userAgent
-     * @return void
-     */
-    public function setUserAgent($userAgent)
-    {
-        if (isset($this->_user_agents[$userAgent]))
-        {
-            $this->addOpt(CURLOPT_USERAGENT, $this->_user_agents[$userAgent]);
-        }
-        else
-        {
-            $this->addOpt(CURLOPT_USERAGENT, $userAgent);
+        if (file_put_contents($this->cookieFile, '') === false) {
+            $this->throwException('Could not clear cookies file.');
         }
     }
 
     /**
-     * CurlWrapper::setReferer()
-     *
-     * Sets the contents of the "Referer: " header to be used in a HTTP request
-     *
-     * @param string $referer
-     * @return void
+     * Clears the cookies array
      */
-    public function setReferer($referer)
+    public function clearCookies()
     {
-        $this->addOpt(CURLOPT_REFERER, $referer);
+        $this->cookies = array();
     }
 
     /**
-     * CurlWrapper::setTimeOut()
-     *
-     * Sets the maximum number of seconds to allow cURL functions to execute
-     *
-     * @param integer $seconds
-     * @return void
+     * Clears the headers array
      */
-    public function setTimeOut($seconds)
+    public function clearHeaders()
     {
-        $this->addOpt(CURLOPT_TIMEOUT, $seconds);
+        $this->headers = array();
     }
 
     /**
-     * CurlWrapper::setConnectTimeOut()
-     *
-     * Sets the number of seconds to wait while trying to connect, use 0 to wait indefinitely
-     *
-     * @param integer $seconds
-     * @return void
+     * Clears the options array
      */
-    public function setConnectTimeOut($seconds)
+    public function clearOptions()
     {
-        $this->addOpt(CURLOPT_CONNECTTIMEOUT, $seconds);
+        $this->options = array();
     }
 
     /**
-     * CurlWrapper::isError()
-     *
-     * Returns the cURL's error number
-     *
-     * @return integer
+     * Clears the requestParams array
      */
-    public function isError()
+    public function clearRequestParams()
     {
-        return $this->_error;
+        $this->requestParams = array();
     }
 
     /**
-     * CurlWrapper::errorMsg()
-     *
-     * Returns the cURL's error message
-     *
-     * @return string|null
+     * Makes the 'DELETE' request to the $url with an optional $requestParams
+     * @param string $url
+     * @param array $requestParams
+     * @return string
      */
-    public function errorMsg()
+    public function delete($url, $requestParams = null)
     {
-        if ($this->_error)
-        {
-            return $this->_error_msg;
-        }
-
-        return null;
+        return $this->request($url, 'DELETE', $requestParams);
     }
 
     /**
-     * CurlWrapper::getTransferInfo()
-     *
+     * Makes the 'GET' request to the $url with an optional $requestParams
+     * @param string $url
+     * @param array $requestParams
+     * @return string
+     */
+    public function get($url, $requestParams = null)
+    {
+        return $this->request($url, 'GET', $requestParams);
+    }
+
+    /**
+     * Returns the last transfer's response data
+     * @return string
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
      * Gets the information about the last transfer
-     *
      * @param string $key
-     * @return associative array|string|null
+     * @return array|string
      * keys are:
      * -- 'url'                      - Last effective URL
      * -- 'content_type'             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
@@ -668,244 +327,269 @@ class CurlWrapper
      */
     public function getTransferInfo($key = null)
     {
-        if (empty($this->_transfer_info))
-        {
-            return null;
+        if (empty($this->transferInfo)) {
+            $this->throwException('There is no transfer info. Did you do the request?');
         }
 
-        if ($key === null)
-        {
-            return $this->_transfer_info;
+        if ($key === null) {
+            return $this->transferInfo;
         }
 
-        if (isset($this->_transfer_info[$key]))
-        {
-            return $this->_transfer_info[$key];
+        if (isset($this->transferInfo[$key])) {
+            return $this->transferInfo[$key];
         }
 
-        return null;
+        $this->throwException('There is no such key: '.$key);
     }
 
     /**
-     * CurlWrapper::throwError()
-     *
-     * Sets the error's details and throws the exception
-     *
-     * @return void
-     */
-    protected function throwError($msg = '')
-    {
-        if (empty($msg))
-        {
-            $this->_error = curl_errno($this->_ch);
-            $this->_error_msg = 'cURL error: '.curl_error($this->_ch);
-        }
-        else
-        {
-            $this->_error = true;
-            $this->_error_msg = $msg;
-        }
-
-        throw new Exception('CurlWrapper exception: '.$this->_error_msg, $this->_error);
-    }
-
-    /**
-     * CurlWrapper::compileHeaders()
-     *
-     * Converts the $this->_headers array to the cURL's option format array
-     *
-     * @return array|null
-     */
-    protected function compileHeaders()
-    {
-        if (empty($this->_headers))
-        {
-            return null;
-        }
-
-        foreach ($this->_headers as $key => $value)
-        {
-            $headers[] = $key.': '.$value;
-        }
-
-        return $headers;
-    }
-
-    /**
-     * CurlWrapper::compileCookies()
-     *
-     * Converts the $this->_cookies array to the string correct format
-     *
-     * @return
-     */
-    protected function compileCookies()
-    {
-        if (empty($this->_cookies))
-        {
-            return null;
-        }
-
-        $cookies = '';
-
-        foreach ($this->_cookies as $ck => $val)
-        {
-            $cookies .= $ck.'='.$val.'; ';
-        }
-
-        return $cookies;
-    }
-
-    /**
-     * CurlWrapper::setRequestMethod()
-     *
-     * Sets the HTTP request method
-     *
-     * @param string $method
-     * @return void
-     */
-    protected function setRequestMethod($method)
-    {
-        /*
-         * Preventing request methods collision
-         */
-        $this->delOpt(CURLOPT_NOBODY);
-        $this->delOpt(CURLOPT_HTTPGET);
-        $this->delOpt(CURLOPT_POST);
-        $this->delOpt(CURLOPT_CUSTOMREQUEST);
-
-        switch (strtoupper($method))
-        {
-            case 'HEAD':
-                $this->addOpt(CURLOPT_NOBODY, true);
-            break;
-
-            case 'GET':
-                $this->addOpt(CURLOPT_HTTPGET, true);
-            break;
-
-            case 'POST':
-                $this->addOpt(CURLOPT_POST, true);
-            break;
-
-            default:
-                $this->addOpt(CURLOPT_CUSTOMREQUEST, $method);
-        }
-    }
-
-    /**
-     * CurlWrapper::setUrl()
-     *
-     * Sets the url to request
-     *
+     * Makes the 'HEAD' request to the $url with an optional $requestParams
      * @param string $url
-     * @return void
+     * @param array $requestParams
+     * @return string
      */
-    protected function setUrl($url)
+    public function head($url, $requestParams = null)
     {
-        $this->addOpt(CURLOPT_URL, $url);
+        return $this->request($url, 'HEAD', $requestParams);
     }
 
     /**
-     * CurlWrapper::setDefaultHeaders()
-     *
-     * Sets the default headers
-     *
-     * @return void
+     * Makes the 'POST' request to the $url with an optional $requestParams
+     * @param string $url
+     * @param array $requestParams
+     * @return string
      */
-    protected function setDefaultHeaders()
+    public function post($url, $requestParams = null)
     {
-        $this->_headers = array(
+        return $this->request($url, 'POST', $requestParams);
+    }
+
+    /**
+     * Makes the 'PUT' request to the $url with an optional $requestParams
+     * @param string $url
+     * @param array $requestParams
+     * @return string
+     */
+    public function put($url, $requestParams = null)
+    {
+        return $this->request($url, 'PUT', $requestParams);
+    }
+
+    /**
+     * Removes the $cookie from cookies array
+     * @param string $cookie
+     */
+    public function removeCookie($cookie)
+    {
+        if (isset($this->cookies[$cookie])) {
+            unset($this->cookies[$cookie]);
+        }
+    }
+
+    /**
+     * Removes the $header from headers array
+     * @param string $header
+     */
+    public function removeHeader($header)
+    {
+        if (isset($this->headers[$header])) {
+            unset($this->headers[$header]);
+        }
+    }
+
+    /**
+     * Removes the $option from options array
+     * @param integer $option
+     */
+    public function removeOption($option)
+    {
+        if (isset($this->options[$option])) {
+            unset($this->options[$option]);
+        }
+    }
+
+    /**
+     * Removes the $name from requestParams array
+     * @param string $name
+     */
+    public function removeRequestParam($name)
+    {
+        if (isset($this->requestParams[$name])) {
+            unset($this->requestParams[$name]);
+        }
+    }
+
+    /**
+     * Makes the request of the specified $method to the $url with an optional $requestParams
+     * @param string $url
+     * @param string $method
+     * @param array $requestParams
+     * @return string
+     */
+    public function request($url, $method = 'GET', $requestParams = null)
+    {
+        $this->setURL($url);
+        $this->setRequestMethod($method);
+
+        if (!empty($requestParams)) {
+            $this->addRequestParam($requestParams);
+        }
+
+        $this->initOptions();
+        $this->response = curl_exec($this->ch);
+
+        if ($this->response === false) {
+            $this->throwException();
+        }
+
+        $this->transferInfo = curl_getinfo($this->ch);
+
+        return $this->response;
+    }
+
+    /**
+     * Reinitiates the cURL handle
+     * headers, options, requestParams, cookies and cookieFile remain untouchable!
+     */
+    public function reset()
+    {
+        if ($this->ch) {
+            $this->__destruct();
+        }
+
+        $this->transferInfo = array();
+        $this->__construct();
+    }
+
+    /**
+     * Reinitiates the cURL handle and resets all data,
+     * inlcuding headers, options, requestParams, cookies and cookieFile
+     */
+    public function resetAll()
+    {
+        $this->clearHeaders();
+        $this->clearOptions();
+        $this->clearRequestParams();
+        $this->clearCookies();
+        $this->clearCookieFile();
+        $this->reset();
+    }
+
+    /**
+     * Sets the number of seconds to wait while trying to connect, use 0 to wait indefinitely
+     * @param integer $seconds
+     */
+    public function setConnectTimeOut($seconds)
+    {
+        $this->addOption(CURLOPT_CONNECTTIMEOUT, $seconds);
+    }
+
+    /**
+     * Sets the file's name to store cookies, throws exception if file is not writable or does'n exists
+     * @param string $filename
+     */
+    public function setCookieFile($filename)
+    {
+        if (!is_writable($filename)) {
+            $this->throwException('Cookie file "'.$filename.'" is not writable or does\'n exists!');
+        }
+
+        $this->cookieFile = $filename;
+    }
+
+    /**
+     * Sets the default headers
+     */
+    public function setDefaultHeaders()
+    {
+        $this->headers = array(
             'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Charset'  => 'windows-1251,utf-8;q=0.7,*;q=0.7',
             'Accept-Language' => 'ru,en-us;q=0.7,en;q=0.3',
+            'Accept-Encoding' => 'gzip,deflate',
+            'Keep-Alive'      => '300',
+            'Connection'      => 'keep-alive',
+            'Cache-Control'   => 'max-age=0',
             'Pragma'          => ''
         );
     }
 
     /**
-     * CurlWrapper::setDefaultOptions()
-     *
      * Sets the default options
-     *
-     * @return void
      */
-    protected function setDefaultOptions()
+    public function setDefaultOptions()
     {
-        $this->_options = array(
+        $this->options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HEADER         => false,
             CURLOPT_ENCODING       => 'gzip,deflate',
-            CURLOPT_USERAGENT      => $this->_user_agents['firefox'],
             CURLOPT_AUTOREFERER    => true,
             CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_TIMEOUT        => 30
+            CURLOPT_TIMEOUT        => 30,
         );
     }
 
     /**
-     * CurlWrapper::initOptions()
-     *
-     * Sets the final options and initiates them by curl_setopt_array()
-     *
-     * @return void
+     * Sets default headers and options and user agent if $userAgent is given
+     * @param string $userAgent Some predefined user agent name (ie, firefox, opera, etc.) or anything string you want
      */
-    protected function initOptions()
+    public function setDefaults($userAgent = null)
     {
-        if (!empty($this->_req_data))
-        {
-            if (isset($this->_options[CURLOPT_HTTPGET]))
-            {
-                $parsed_url = parse_url($this->_options[CURLOPT_URL]);
-                $query = http_build_query($this->_req_data, '', '&');
+        $this->setDefaultHeaders();
+        $this->setDefaultOptions();
 
-                if (isset($parsed_url['query']))
-                {
-                    $parsed_url['query'] .= '&'.$query;
-                }
-                else
-                {
-                    $parsed_url['query'] = $query;
-                }
-
-                $this->setUrl($this->_buildUrl($parsed_url));
-            }
-            else
-            {
-                $this->addOpt(CURLOPT_POSTFIELDS, $this->_req_data);
-            }
-        }
-
-        if (!empty($this->_headers))
-        {
-            $this->addOpt(CURLOPT_HTTPHEADER, $this->compileHeaders());
-        }
-
-        if (!empty($this->_cookie_file))
-        {
-            $this->addOpt(CURLOPT_COOKIEFILE, $this->_cookie_file);
-            $this->addOpt(CURLOPT_COOKIEJAR, $this->_cookie_file);
-        }
-
-        if (!empty($this->_cookies))
-        {
-            $this->addOpt(CURLOPT_COOKIE, $this->compileCookies());
-        }
-
-        if (!curl_setopt_array($this->_ch, $this->_options))
-        {
-            $this->throwError();
+        if (!empty($userAgent)) {
+            $this->setUserAgent($userAgent);
         }
     }
 
     /**
-     * CurlWrapper::_buildUrl()
-     *
-     * Builds url from associative array maked by parse_str()
-     *
-     * @param associative array $parsedUrl
+     * Sets the contents of the "Referer: " header to be used in a HTTP request
+     * @param string $referer
+     */
+    public function setReferer($referer)
+    {
+        $this->addOption(CURLOPT_REFERER, $referer);
+    }
+
+    /**
+     * Sets the maximum number of seconds to allow cURL functions to execute
+     * @param integer $seconds
+     */
+    public function setTimeOut($seconds)
+    {
+        $this->addOption(CURLOPT_TIMEOUT, $seconds);
+    }
+
+    /**
+     * Sets the contents of the "User-Agent: " header to be used in a HTTP request
+     * You can use 'magic' words: 'ie', 'firefox', 'opera' and 'chrome'
+     * to set default CurlWrapper's user agent defined in predefinedUserAgents array
+     * @param string $userAgent
+     */
+    public function setUserAgent($userAgent)
+    {
+        if (isset($this->predefinedUserAgents[$userAgent])) {
+            $this->addOption(CURLOPT_USERAGENT, $this->predefinedUserAgents[$userAgent]);
+        } else {
+            $this->addOption(CURLOPT_USERAGENT, $userAgent);
+        }
+    }
+
+    /**
+     * Sets the value of cookieFile to empty string
+     */
+    public function unsetCookieFile()
+    {
+        $this->cookieFile = '';
+    }
+
+    /**
+     * Builds url from associative array made by parse_str()
+     * @param array $parsedUrl
      * @return string
      */
-    private function _buildUrl(array $parsedUrl)
+    protected function buildUrl($parsedUrl)
     {
         return (isset($parsedUrl['scheme'])   ?     $parsedUrl["scheme"].'://' : '').
                (isset($parsedUrl['user'])     ?     $parsedUrl["user"].':'     : '').
@@ -917,4 +601,143 @@ class CurlWrapper
                (isset($parsedUrl['fragment']) ? '#'.$parsedUrl["fragment"]     : '');
     }
 
+    /**
+     * Sets the final options and initiates them by curl_setopt_array()
+     */
+    protected function initOptions()
+    {
+        if (!empty($this->requestParams)) {
+            if (isset($this->options[CURLOPT_HTTPGET])) {
+                $this->prepareGetParams();
+            } else {
+                $this->addOption(CURLOPT_POSTFIELDS, $this->requestParams);
+            }
+        }
+
+        if (!empty($this->headers)) {
+            $this->addOption(CURLOPT_HTTPHEADER, $this->prepareHeaders());
+        }
+
+        if (!empty($this->cookieFile)) {
+            $this->addOption(CURLOPT_COOKIEFILE, $this->cookieFile);
+            $this->addOption(CURLOPT_COOKIEJAR, $this->cookieFile);
+        }
+
+        if (!empty($this->cookies)) {
+            $this->addOption(CURLOPT_COOKIE, $this->prepareCookies());
+        }
+
+        if (!curl_setopt_array($this->ch, $this->options)) {
+            $this->throwException();
+        }
+    }
+
+    /**
+     * Converts the cookies array to the string correct format
+     * @return string
+     */
+    protected function prepareCookies()
+    {
+        $cookies_string = '';
+
+        foreach ($this->cookies as $cookie => $value) {
+            $cookies_string .= $cookie.'='.$value.'; ';
+        }
+
+        return $cookies_string;
+    }
+
+    /**
+     * Converts requestParams array to the query string and adds it to the request url
+     */
+    protected function prepareGetParams()
+    {
+        $parsed_url = parse_url($this->options[CURLOPT_URL]);
+        $query = http_build_query($this->requestParams, '', '&');
+
+        if (isset($parsed_url['query'])) {
+            $parsed_url['query'] .= '&'.$query;
+        } else {
+            $parsed_url['query'] = $query;
+        }
+
+        $this->setUrl($this->buildUrl($parsed_url));
+    }
+
+    /**
+     * Converts the headers array to the cURL's option format array
+     * @return array
+     */
+    protected function prepareHeaders()
+    {
+        $headers_array = array();
+
+        foreach ($this->headers as $header => $value) {
+            $headers_array[] = $header.': '.$value;
+        }
+
+        return $headers_array;
+    }
+
+    /**
+     * Sets the HTTP request method
+     * @param string $method
+     */
+    protected function setRequestMethod($method)
+    {
+        /*
+         * Preventing request methods collision
+         */
+        $this->removeOption(CURLOPT_NOBODY);
+        $this->removeOption(CURLOPT_HTTPGET);
+        $this->removeOption(CURLOPT_POST);
+        $this->removeOption(CURLOPT_CUSTOMREQUEST);
+
+        switch (strtoupper($method)) {
+            case 'HEAD':
+                $this->addOption(CURLOPT_NOBODY, true);
+            break;
+
+            case 'GET':
+                $this->addOption(CURLOPT_HTTPGET, true);
+            break;
+
+            case 'POST':
+                $this->addOption(CURLOPT_POST, true);
+            break;
+
+            default:
+                $this->addOption(CURLOPT_CUSTOMREQUEST, $method);
+        }
+    }
+
+    /**
+     * Sets the url
+     * @param string $url
+     */
+    protected function setUrl($url)
+    {
+        $this->addOption(CURLOPT_URL, $url);
+    }
+
+    /**
+     * Sets the error's details and throws the exception
+     */
+    protected function throwException($msg = '')
+    {
+        if (empty($msg)) {
+            $error = curl_errno($this->ch);
+            $errorMsg = 'cURL error: '.curl_error($this->ch);
+        } else {
+            $error = 1;
+            $errorMsg = $msg;
+        }
+
+        throw new CurlWrapperException($errorMsg, $error);
+    }
 }
+
+/**
+ * CurlWrapper Exceptions class
+ */
+class CurlWrapperException extends Exception {}
