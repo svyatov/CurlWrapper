@@ -15,12 +15,12 @@ Click the `download` link above or `git clone git://github.com/Svyatov/CurlWrapp
 Simply require and initialize the `CurlWrapper` class like so:
 
 	require_once 'CurlWrapper.php';
+
 	try {
 	    $curl = new CurlWrapper();
 	} catch (CurlWrapperException $e) {
 	    echo $e->getMessage();
 	}
-}
 
 
 ### Performing a Request
