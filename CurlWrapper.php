@@ -5,7 +5,7 @@
  * @author Leonid Svyatov <leonid@svyatov.ru>
  * @copyright 2010-2011, Leonid Svyatov
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
- * @version 1.0.8 / 05.01.2011
+ * @version 1.0.9 / 09.10.2011
  * @link http://github.com/Svyatov/CurlWrapper
  */
 class CurlWrapper
@@ -14,53 +14,45 @@ class CurlWrapper
      * @var handle cURL handle
      */
     protected $ch = null;
-
     /**
      * @var string Filename of a writable file for cookies storage
      */
     protected $cookieFile = '';
-
     /**
      * @var array Cookies to send
      */
     protected $cookies = array();
-
     /**
      * @var array Headers to send
      */
     protected $headers = array();
-
     /**
      * @var array cURL options
      */
     protected $options = array();
-
     /**
      * @var array Predefined user agents. The 'firefox' value is used by default
      */
-    protected $predefinedUserAgents = array(
-        // IE 8.0
-        'ie'       => 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0)',
-        // Firefox 3.6.10
-        'firefox'  => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.10) Gecko/20100915 Firefox/3.6.10',
-        // Opera 10.6
-        'opera'    => 'Opera/9.80 (Windows NT 5.1; U; en-US) Presto/2.5.24 Version/10.6',
-        // Chrome 5.0.375.70
-        'chrome'   => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/533.4 (KHTML, like Gecko) Chrome/5.0.375.70 Safari/533.4',
+    protected static $predefinedUserAgents = array(
+        // IE 9.0
+        'ie'       => 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
+        // Firefox 6
+        'firefox'  => 'Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0',
+        // Opera 12
+        'opera'    => 'Opera/9.80 (Windows NT 6.1; U; en-US) Presto/2.9.181 Version/12.00',
+        // Chrome 15
+        'chrome'   => 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.872.0 Safari/535.2',
         // Google Bot
         'bot'      => 'Googlebot/2.1 (+http://www.google.com/bot.html)',
     );
-
     /**
      * @var array GET/POST params to send
      */
     protected $requestParams = array();
-
     /**
      * @var string cURL response data
      */
     protected $response = '';
-
     /**
      * @var array cURL transfer info
      */
@@ -72,13 +64,13 @@ class CurlWrapper
     public function __construct()
     {
         if (!function_exists('curl_init')) {
-            $this->throwException('cURL library is not installed.');
+            throw new CurlWrapperException('cURL library is not installed.');
         }
 
         $this->ch = curl_init();
 
         if (!$this->ch) {
-            $this->throwException();
+            throw new CurlWrapperException($this->ch);
         }
     }
 
@@ -87,7 +79,10 @@ class CurlWrapper
      */
     public function __destruct()
     {
-        curl_close($this->ch);
+        if (is_resource($this->ch)) {
+            curl_close($this->ch);
+        }
+
         $this->ch = null;
     }
 
@@ -171,7 +166,7 @@ class CurlWrapper
 
     /**
      * Merges $optionsArray with options array
-     * @param array $optionArray
+     * @param array $optionsArray
      */
     public function addOptionsAsArray($optionsArray)
     {
@@ -215,7 +210,7 @@ class CurlWrapper
 
     /**
      * Converts $queryString to associative array and merges it with requestParams
-     * @param array $paramsArray
+     * @param array $queryString
      */
     public function addRequestParamsAsQueryString($queryString)
     {
@@ -231,9 +226,11 @@ class CurlWrapper
      */
     public function clearCookieFile()
     {
-        if (file_put_contents($this->cookieFile, '') === false) {
-            $this->throwException('Could not clear cookies file.');
+        if (!is_writable($this->cookieFile)) {
+            throw new CurlWrapperException('Cookie file "'.($this->cookieFile).'" is not writable or does\'n exists!');
         }
+
+        file_put_contents($this->cookieFile, '', LOCK_EX);
     }
 
     /**
@@ -328,7 +325,7 @@ class CurlWrapper
     public function getTransferInfo($key = null)
     {
         if (empty($this->transferInfo)) {
-            $this->throwException('There is no transfer info. Did you do the request?');
+            throw new CurlWrapperException('There is no transfer info. Did you do the request?');
         }
 
         if ($key === null) {
@@ -339,7 +336,7 @@ class CurlWrapper
             return $this->transferInfo[$key];
         }
 
-        $this->throwException('There is no such key: '.$key);
+        throw new CurlWrapperException('There is no such key: '.$key);
     }
 
     /**
@@ -439,7 +436,7 @@ class CurlWrapper
         $this->response = curl_exec($this->ch);
 
         if ($this->response === false) {
-            $this->throwException();
+            throw new CurlWrapperException($this->ch);
         }
 
         $this->transferInfo = curl_getinfo($this->ch);
@@ -453,7 +450,7 @@ class CurlWrapper
      */
     public function reset()
     {
-        if ($this->ch) {
+        if (is_resource($this->ch)) {
             $this->__destruct();
         }
 
@@ -491,7 +488,7 @@ class CurlWrapper
     public function setCookieFile($filename)
     {
         if (!is_writable($filename)) {
-            $this->throwException('Cookie file "'.$filename.'" is not writable or does\'n exists!');
+            throw new CurlWrapperException('Cookie file "'.$filename.'" is not writable or does\'n exists!');
         }
 
         $this->cookieFile = $filename;
@@ -556,7 +553,7 @@ class CurlWrapper
      * Sets the maximum number of seconds to allow cURL functions to execute
      * @param integer $seconds
      */
-    public function setTimeOut($seconds)
+    public function setTimeout($seconds)
     {
         $this->addOption(CURLOPT_TIMEOUT, $seconds);
     }
@@ -569,8 +566,8 @@ class CurlWrapper
      */
     public function setUserAgent($userAgent)
     {
-        if (isset($this->predefinedUserAgents[$userAgent])) {
-            $this->addOption(CURLOPT_USERAGENT, $this->predefinedUserAgents[$userAgent]);
+        if (isset(self::$predefinedUserAgents[$userAgent])) {
+            $this->addOption(CURLOPT_USERAGENT, self::$predefinedUserAgents[$userAgent]);
         } else {
             $this->addOption(CURLOPT_USERAGENT, $userAgent);
         }
@@ -628,7 +625,7 @@ class CurlWrapper
         }
 
         if (!curl_setopt_array($this->ch, $this->options)) {
-            $this->throwException();
+            throw new CurlWrapperException($this->ch);
         }
     }
 
@@ -638,13 +635,13 @@ class CurlWrapper
      */
     protected function prepareCookies()
     {
-        $cookies_string = '';
+        $cookiesString = '';
 
         foreach ($this->cookies as $cookie => $value) {
-            $cookies_string .= $cookie.'='.$value.'; ';
+            $cookiesString .= $cookie.'='.$value.'; ';
         }
 
-        return $cookies_string;
+        return $cookiesString;
     }
 
     /**
@@ -652,16 +649,16 @@ class CurlWrapper
      */
     protected function prepareGetParams()
     {
-        $parsed_url = parse_url($this->options[CURLOPT_URL]);
+        $parsedUrl = parse_url($this->options[CURLOPT_URL]);
         $query = http_build_query($this->requestParams, '', '&');
 
-        if (isset($parsed_url['query'])) {
-            $parsed_url['query'] .= '&'.$query;
+        if (isset($parsedUrl['query'])) {
+            $parsedUrl['query'] .= '&'.$query;
         } else {
-            $parsed_url['query'] = $query;
+            $parsedUrl['query'] = $query;
         }
 
-        $this->setUrl($this->buildUrl($parsed_url));
+        $this->setUrl($this->buildUrl($parsedUrl));
     }
 
     /**
@@ -670,13 +667,13 @@ class CurlWrapper
      */
     protected function prepareHeaders()
     {
-        $headers_array = array();
+        $headersArray = array();
 
         foreach ($this->headers as $header => $value) {
-            $headers_array[] = $header.': '.$value;
+            $headersArray[] = $header.': '.$value;
         }
 
-        return $headers_array;
+        return $headersArray;
     }
 
     /**
@@ -685,9 +682,7 @@ class CurlWrapper
      */
     protected function setRequestMethod($method)
     {
-        /*
-         * Preventing request methods collision
-         */
+        // Preventing request methods collision
         $this->removeOption(CURLOPT_NOBODY);
         $this->removeOption(CURLOPT_HTTPGET);
         $this->removeOption(CURLOPT_POST);
@@ -719,25 +714,23 @@ class CurlWrapper
     {
         $this->addOption(CURLOPT_URL, $url);
     }
-
-    /**
-     * Sets the error's details and throws the exception
-     */
-    protected function throwException($msg = '')
-    {
-        if (empty($msg)) {
-            $error = curl_errno($this->ch);
-            $errorMsg = 'cURL error: '.curl_error($this->ch);
-        } else {
-            $error = 1;
-            $errorMsg = $msg;
-        }
-
-        throw new CurlWrapperException($errorMsg, $error);
-    }
 }
 
 /**
  * CurlWrapper Exceptions class
  */
-class CurlWrapperException extends Exception {}
+class CurlWrapperException extends Exception
+{
+    /**
+     * @param string|resource $messageOrCurlHandler
+     */
+    public function __construct($messageOrCurlHandler)
+    {
+        if (is_string($messageOrCurlHandler)) {
+            $this->message = $messageOrCurlHandler;
+        } else {
+            $this->message = curl_error($messageOrCurlHandler);
+            $this->code = curl_errno($messageOrCurlHandler);
+        }
+    }
+}
