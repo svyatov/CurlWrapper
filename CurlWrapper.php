@@ -63,8 +63,8 @@ class CurlWrapper
      */
     public function __construct()
     {
-        if (!function_exists('curl_init')) {
-            throw new CurlWrapperException('cURL library is not installed.');
+        if (!extension_loaded('curl')) {
+            throw new CurlWrapperException('cURL extension is not loaded.');
         }
 
         $this->ch = curl_init();
