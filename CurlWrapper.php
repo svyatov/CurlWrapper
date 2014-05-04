@@ -547,7 +547,7 @@ class CurlWrapper
             if (isset($this->options[CURLOPT_HTTPGET])) {
                 $this->prepareGetParams();
             } else {
-                $this->addOption(CURLOPT_POSTFIELDS, $this->requestParams);
+                $this->addOption(CURLOPT_POSTFIELDS, http_build_query($this->requestParams));
             }
         }
 
