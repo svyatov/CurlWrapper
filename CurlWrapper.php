@@ -3,10 +3,10 @@
  * CurlWrapper - Flexible wrapper class for PHP cURL extension
  *
  * @author Leonid Svyatov <leonid@svyatov.ru>
- * @copyright 2010-2011, Leonid Svyatov
+ * @copyright 2010-2011, 2014 Leonid Svyatov
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
- * @version 1.1.0 / 13.10.2011
- * @link http://github.com/Svyatov/CurlWrapper
+ * @version 1.1.0
+ * @link http://github.com/svyatov/CurlWrapper
  */
 class CurlWrapper
 {
@@ -75,7 +75,7 @@ class CurlWrapper
     }
 
     /**
-     * Closes and unallocates the cURL handle
+     * Closes and frees the cURL handle
      */
     public function __destruct()
     {
@@ -127,7 +127,8 @@ class CurlWrapper
 
     /**
      * Adds an option for a cURL transfer (@see http://php.net/manual/en/function.curl-setopt.php)
-     * @param integer|array $option CURLOPT_XXX predefined constant or array of constants (constant=>value)
+     *
+     * @param integer|array $option CURLOPT_XXX predefined constant or associative array of constants (constant=>value)
      * @param mixed $value Value of option
      */
     public function addOption($option, $value = null)
@@ -210,6 +211,7 @@ class CurlWrapper
 
     /**
      * Makes the 'DELETE' request to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param array $requestParams
      * @return string
@@ -221,6 +223,7 @@ class CurlWrapper
 
     /**
      * Makes the 'GET' request to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param array $requestParams
      * @return string
@@ -232,6 +235,7 @@ class CurlWrapper
 
     /**
      * Returns the last transfer's response data
+     *
      * @return string
      */
     public function getResponse()
@@ -241,28 +245,33 @@ class CurlWrapper
 
     /**
      * Gets the information about the last transfer
+     *
+     * If $key is given, returns its value. Otherwise, returns an associative array with the following elements:
+     * url                      - Last effective URL
+     * content_type             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
+     * http_code                - Last received HTTP code
+     * header_size              - Total size of all headers received
+     * request_size             - Total size of issued requests, currently only for HTTP requests
+     * filetime                 - Remote time of the retrieved document, if -1 is returned the time of the document is unknown
+     * ssl_verify_result        - Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
+     * redirect_count           - Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
+     * total_time               - Total transaction time in seconds for last transfer
+     * namelookup_time          - Time in seconds until name resolving was complete
+     * connect_time             - Time in seconds it took to establish the connection
+     * pretransfer_time         - Time in seconds from start until just before file transfer begins
+     * size_upload              - Total number of bytes uploaded
+     * size_download            - Total number of bytes downloaded
+     * speed_download           - Average download speed
+     * speed_upload             - Average upload speed
+     * download_content_length  - content-length of download, read from Content-Length:  field
+     * upload_content_length    - Specified size of upload
+     * starttransfer_time       - Time in seconds until the first byte is about to be transferred
+     * redirect_time            - Time in seconds of all redirection steps before final transaction was started
+     * certinfo                 - There is official description for this field yet
+     * request_header           - The request string sent. For this to work, add the CURLINFO_HEADER_OUT option
+     *
      * @param string $key @see http://php.net/manual/en/function.curl-getinfo.php
-     * keys are:
-     * -- 'url'                      - Last effective URL
-     * -- 'content_type'             - Content-Type: of downloaded object, NULL indicates server did not send valid Content-Type: header
-     * -- 'http_code'                - Last received HTTP code
-     * -- 'header_size'              - Total size of all headers received
-     * -- 'request_size'             - Total size of issued requests, currently only for HTTP requests
-     * -- 'filetime'                 - Remote time of the retrieved document, if -1 is returned the time of the document is unknown
-     * -- 'ssl_verify_result'        - Result of SSL certification verification requested by setting CURLOPT_SSL_VERIFYPEER
-     * -- 'redirect_count'           - Number of redirects it went through if CURLOPT_FOLLOWLOCATION was set
-     * -- 'total_time'               - Total transaction time in seconds for last transfer
-     * -- 'namelookup_time'          - Time in seconds until name resolving was complete
-     * -- 'connect_time'             - Time in seconds it took to establish the connection
-     * -- 'pretransfer_time'         - Time in seconds from start until just before file transfer begins
-     * -- 'size_upload'              - Total number of bytes uploaded
-     * -- 'size_download'            - Total number of bytes downloaded
-     * -- 'speed_download'           - Average download speed
-     * -- 'speed_upload'             - Average upload speed
-     * -- 'download_content_length'  - content-length of download, read from Content-Length:  field
-     * -- 'upload_content_length'    - Specified size of upload
-     * -- 'starttransfer_time'       - Time in seconds until the first byte is about to be transferred
-     * -- 'redirect_time'            - Time in seconds of all redirection steps before final transaction was started
+     * @throws CurlWrapperException
      * @return array|string
      */
     public function getTransferInfo($key = null)
@@ -284,6 +293,7 @@ class CurlWrapper
 
     /**
      * Makes the 'HEAD' request to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param array $requestParams
      * @return string
@@ -295,6 +305,7 @@ class CurlWrapper
 
     /**
      * Makes the 'POST' request to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param array $requestParams
      * @return string
@@ -306,6 +317,7 @@ class CurlWrapper
 
     /**
      * Makes the 'PUT' request to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param array $requestParams
      * @return string
@@ -317,6 +329,7 @@ class CurlWrapper
 
     /**
      * Removes the cookie for next cURL transfer
+     *
      * @param string $name Name of cookie
      */
     public function removeCookie($name)
@@ -328,6 +341,7 @@ class CurlWrapper
 
     /**
      * Removes the header for next cURL transfer
+     *
      * @param string $header
      */
     public function removeHeader($header)
@@ -339,6 +353,7 @@ class CurlWrapper
 
     /**
      * Removes the option for next cURL transfer
+     *
      * @param integer $option CURLOPT_XXX predefined constant
      */
     public function removeOption($option)
@@ -350,6 +365,7 @@ class CurlWrapper
 
     /**
      * Removes the request parameter for next cURL transfer
+     *
      * @param string $name
      */
     public function removeRequestParam($name)
@@ -361,9 +377,11 @@ class CurlWrapper
 
     /**
      * Makes the request of the specified $method to the $url with an optional $requestParams
+     *
      * @param string $url
      * @param string $method
      * @param array $requestParams
+     * @throws CurlWrapperException
      * @return string
      */
     public function request($url, $method = 'GET', $requestParams = null)
@@ -389,7 +407,7 @@ class CurlWrapper
 
     /**
      * Reinitiates the cURL handle
-     * headers, options, request parameters, cookies and cookies file remain untouchable!
+     * IMPORTANT: headers, options, request parameters, cookies and cookies file are remain untouched!
      */
     public function reset()
     {
@@ -399,8 +417,8 @@ class CurlWrapper
     }
 
     /**
-     * Reinitiates the cURL handle and resets all data,
-     * inlcuding headers, options, request parameters, cookies and cookies file
+     * Reinitiates the cURL handle and resets all data
+     * Including headers, options, request parameters, cookies and cookies file
      */
     public function resetAll()
     {
@@ -414,6 +432,7 @@ class CurlWrapper
 
     /**
      * Sets the number of seconds to wait while trying to connect, use 0 to wait indefinitely
+     *
      * @param integer $seconds
      */
     public function setConnectTimeOut($seconds)
@@ -423,7 +442,9 @@ class CurlWrapper
 
     /**
      * Sets the filename to store cookies
+     *
      * @param string $filename
+     * @throws CurlWrapperException
      */
     public function setCookieFile($filename)
     {
@@ -468,7 +489,8 @@ class CurlWrapper
 
     /**
      * Sets default headers and options and user agent if $userAgent is given
-     * @param string $userAgent Some predefined user agent name (ie, firefox, opera, etc.) or anything string you want
+     *
+     * @param string $userAgent Some predefined user agent name (ie, firefox, opera, etc.) or any string you want
      */
     public function setDefaults($userAgent = null)
     {
@@ -482,6 +504,7 @@ class CurlWrapper
 
     /**
      * Sets the contents of the "Referer: " header to be used in a HTTP request
+     *
      * @param string $referer
      */
     public function setReferer($referer)
@@ -491,6 +514,7 @@ class CurlWrapper
 
     /**
      * Sets the maximum number of seconds to allow cURL functions to execute
+     *
      * @param integer $seconds
      */
     public function setTimeout($seconds)
@@ -500,8 +524,8 @@ class CurlWrapper
 
     /**
      * Sets the contents of the "User-Agent: " header to be used in a HTTP request
-     * You can use 'magic' words: 'ie', 'firefox', 'opera' and 'chrome'
-     * to set one of predefined CurlWrapper's user agents
+     * You can use CurlWrapper's predefined shortcuts: 'ie', 'firefox', 'opera' and 'chrome'
+     *
      * @param string $userAgent
      */
     public function setUserAgent($userAgent)
@@ -523,6 +547,7 @@ class CurlWrapper
 
     /**
      * Builds url from associative array produced by parse_str() function
+     *
      * @param array $parsedUrl
      * @return string
      */
@@ -539,7 +564,7 @@ class CurlWrapper
     }
 
     /**
-     * Sets the final options and initiates
+     * Sets the final options and prepares request params, headers and cookies
      */
     protected function initOptions()
     {
@@ -571,6 +596,7 @@ class CurlWrapper
 
     /**
      * Converts the cookies array to the correct string format
+     *
      * @return string
      */
     protected function prepareCookies()
@@ -603,6 +629,7 @@ class CurlWrapper
 
     /**
      * Converts the headers array to the cURL's option format array
+     *
      * @return array
      */
     protected function prepareHeaders()
@@ -618,6 +645,7 @@ class CurlWrapper
 
     /**
      * Sets the HTTP request method
+     *
      * @param string $method
      */
     protected function setRequestMethod($method)
@@ -647,8 +675,9 @@ class CurlWrapper
     }
 
     /**
-     * Sets the url
-     * @param string $url
+     * Sets the request url
+     *
+     * @param string $url Request URL
      */
     protected function setUrl($url)
     {
