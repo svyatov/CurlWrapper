@@ -70,7 +70,7 @@ class CurlWrapper
         $this->ch = curl_init();
 
         if (!$this->ch) {
-            throw new CurlWrapperException($this->ch);
+            throw new CurlWrapperCurlException($this->ch);
         }
 
         $this->setDefaults();
@@ -399,7 +399,7 @@ class CurlWrapper
         $this->response = curl_exec($this->ch);
 
         if ($this->response === false) {
-            throw new CurlWrapperException($this->ch);
+            throw new CurlWrapperCurlException($this->ch);
         }
 
         $this->transferInfo = curl_getinfo($this->ch);
@@ -594,7 +594,7 @@ class CurlWrapper
         }
 
         if (!curl_setopt_array($this->ch, $this->options)) {
-            throw new CurlWrapperException($this->ch);
+            throw new CurlWrapperCurlException($this->ch);
         }
     }
 
@@ -695,15 +695,25 @@ class CurlWrapper
 class CurlWrapperException extends Exception
 {
     /**
-     * @param string|resource $messageOrCurlHandler
+     * @param string $message
      */
-    public function __construct($messageOrCurlHandler)
+    public function __construct($message)
     {
-        if (is_string($messageOrCurlHandler)) {
-            $this->message = $messageOrCurlHandler;
-        } else {
-            $this->message = curl_error($messageOrCurlHandler);
-            $this->code = curl_errno($messageOrCurlHandler);
-        }
+        $this->message = $message;
+    }
+}
+
+/**
+ * CurlWrapper cURL Exceptions class
+ */
+class CurlWrapperCurlException extends CurlWrapperException
+{
+    /**
+     * @param resource $curlHandler
+     */
+    public function __construct($curlHandler)
+    {
+        $this->message = curl_error($curlHandler);
+        $this->code = curl_errno($curlHandler);
     }
 }
