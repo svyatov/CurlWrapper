@@ -5,7 +5,7 @@
  * @author Leonid Svyatov <leonid@svyatov.ru>
  * @copyright 2010-2011, 2014 Leonid Svyatov
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
- * @version 1.1.0
+ * @version 1.1.1
  * @link http://github.com/svyatov/CurlWrapper
  */
 class CurlWrapper
@@ -31,17 +31,17 @@ class CurlWrapper
      */
     protected $options = array();
     /**
-     * @var array Predefined user agents. The 'firefox' value is used by default
+     * @var array Predefined user agents. The 'chrome' value is used by default
      */
     protected static $predefinedUserAgents = array(
-        // IE 9.0
-        'ie'       => 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)',
-        // Firefox 6
-        'firefox'  => 'Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0',
-        // Opera 12
-        'opera'    => 'Opera/9.80 (Windows NT 6.1; U; en-US) Presto/2.9.181 Version/12.00',
-        // Chrome 15
-        'chrome'   => 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.2 (KHTML, like Gecko) Chrome/15.0.872.0 Safari/535.2',
+        // IE 11
+        'ie'       => 'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 6.1; WOW64; Trident/6.0)',
+        // Firefox 29
+        'firefox'  => 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20120101 Firefox/29.0',
+        // Opera 20
+        'opera'    => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.46 Safari/537.36 OPR/20.0.1387.24 (Edition Next)',
+        // Chrome 32
+        'chrome'   => 'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36',
         // Google Bot
         'bot'      => 'Googlebot/2.1 (+http://www.google.com/bot.html)',
     );
@@ -72,6 +72,8 @@ class CurlWrapper
         if (!$this->ch) {
             throw new CurlWrapperException($this->ch);
         }
+
+        $this->setDefaults();
     }
 
     /**
@@ -109,9 +111,9 @@ class CurlWrapper
      * Adds a header for a cURL transfer
      *
      * Examples:
-     * $curl->addHeader('Accept-Charset', 'windows-1251,utf-8;q=0.7,*;q=0.7');
+     * $curl->addHeader('Accept-Charset', 'utf-8;q=0.7,*;q=0.7');
      * $curl->addHeader('Pragma', '');
-     * $curl->addHeader(array('Accept-Charset'=>'windows-1251,utf-8;q=0.7,*;q=0.7', 'Pragma'=>''));
+     * $curl->addHeader(array('Accept-Charset'=>'utf-8;q=0.7,*;q=0.7', 'Pragma'=>''));
      *
      * @param string|array $header Header or array of headers (header=>value)
      * @param string $value Value of header
@@ -462,8 +464,8 @@ class CurlWrapper
     {
         $this->headers = array(
             'Accept'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Charset'  => 'windows-1251,utf-8;q=0.7,*;q=0.7',
-            'Accept-Language' => 'ru,en-us;q=0.7,en;q=0.3',
+            'Accept-Charset'  => 'utf-8;q=0.7,*;q=0.7',
+            'Accept-Language' => 'en-US,en;q=0.8',
             'Accept-Encoding' => 'gzip,deflate',
             'Keep-Alive'      => '300',
             'Connection'      => 'keep-alive',
@@ -488,7 +490,7 @@ class CurlWrapper
     }
 
     /**
-     * Sets default headers and options and user agent if $userAgent is given
+     * Sets default headers, options and user agent if $userAgent is given
      *
      * @param string $userAgent Some predefined user agent name (ie, firefox, opera, etc.) or any string you want
      */
@@ -499,6 +501,8 @@ class CurlWrapper
 
         if (!empty($userAgent)) {
             $this->setUserAgent($userAgent);
+        } else {
+            $this->setUserAgent('chrome');
         }
     }
 
