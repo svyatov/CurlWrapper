@@ -51,14 +51,6 @@ To use a custom request methods, you can call the `request` method:
 $response = $curl->request($url, 'ANY_CUSTOM_REQUEST_TYPE', $params);
 ```
 
-All of the built in request methods like `put` and `get` simply wrap the main `request` method. For example, the `post` method is implemented like:
-
-```php
-public function post($url, $requestParams = null)
-{
-    return $this->request($url, 'POST', $requestParams);
-}
-```
 
 Examples:
 
@@ -132,8 +124,6 @@ $curl->setReferer('http://google.com');
 $curl->setUserAgent('some user agent string');
 ```
 
-You may even set these headers manually if you wish so (see below).
-
 
 ### Setting custom headers
 
@@ -153,7 +143,7 @@ $curl->addHeader(array('Host'=>'98.52.78.243', 'Some-Custom-Header'=>'Some Custo
 
 ### Setting custom cURL options
 
-You can set/override many different options for cURL requests (see the [curl_setopt documentation](http://www.php.net/manual/en/function.curl-setopt.php) for a list of them):
+You can set/override any cURL option (see the [curl_setopt documentation](http://www.php.net/manual/en/function.curl-setopt.php) for a list of them):
 
 ```php
 $curl->addOption(CURLOPT_AUTOREFERER, true);
