@@ -33,7 +33,7 @@ try {
 }
 ```
 
-### Performing a Request
+### Performing request
 
 The CurlWrapper object supports 5 types of requests: HEAD, GET, POST, PUT, and DELETE. You must specify an url to request and optionally specify an associative array or query string of variables to send along with it.
 
@@ -112,7 +112,7 @@ $httpCode = $curl->getTransferInfo('http_code');
 ```
 
 
-### Cookie Sessions
+### Cookie sessions
 
 To maintain a session across requests and cookies support you must set file's name where cookies to store:
 
@@ -123,7 +123,7 @@ $curl->setCookieFile('some_file_name.txt');
 This file must be writeble or the CurlWrapperException will be thrown.
 
 
-### Basic Configuration Options
+### Basic configuration options
 
 You can easily set the referer or user-agent:
 
@@ -135,7 +135,7 @@ $curl->setUserAgent('some user agent string');
 You may even set these headers manually if you wish so (see below).
 
 
-### Setting Custom Headers
+### Setting custom headers
 
 You can set custom headers to send with the request:
 
@@ -151,7 +151,7 @@ $curl->addHeader(array('Host'=>'98.52.78.243', 'Some-Custom-Header'=>'Some Custo
 ```
 
 
-### Setting Custom cURL request options
+### Setting custom cURL options
 
 You can set/override many different options for cURL requests (see the [curl_setopt documentation](http://www.php.net/manual/en/function.curl-setopt.php) for a list of them):
 
