@@ -60,6 +60,8 @@ class CurlWrapper
 
     /**
      * Initiates the cURL handle
+     *
+     * @throws CurlWrapperCurlException
      */
     public function __construct()
     {
@@ -383,7 +385,7 @@ class CurlWrapper
      * @param string $url
      * @param string $method
      * @param array $requestParams
-     * @throws CurlWrapperException
+     * @throws CurlWrapperCurlException
      * @return string
      */
     public function request($url, $method = 'GET', $requestParams = null)
@@ -569,6 +571,8 @@ class CurlWrapper
 
     /**
      * Sets the final options and prepares request params, headers and cookies
+     *
+     * @throws CurlWrapperCurlException
      */
     protected function initOptions()
     {
