@@ -624,7 +624,7 @@ class CurlWrapper
     protected function prepareGetParams()
     {
         $parsedUrl = parse_url($this->options[CURLOPT_URL]);
-        $query = http_build_query($this->requestParams, '', '&');
+        $query = http_build_query($this->requestParams);
 
         if (isset($parsedUrl['query'])) {
             $parsedUrl['query'] .= '&'.$query;
