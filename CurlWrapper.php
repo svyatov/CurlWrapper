@@ -5,7 +5,7 @@
  * @author Leonid Svyatov <leonid@svyatov.ru>
  * @copyright 2010-2011, 2014 Leonid Svyatov
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
- * @version 1.1.1
+ * @version 1.2.0
  * @link http://github.com/svyatov/CurlWrapper
  */
 class CurlWrapper
@@ -332,6 +332,36 @@ class CurlWrapper
     }
 
     /**
+     * Makes the 'POST' request to the $url with raw $data
+     * Use this method to send raw JSON, etc.
+     *
+     * @param string $url
+     * @param string $data
+     * @return string
+     */
+    public function rawPost($url, $data)
+    {
+        $this->prepareRawPayload($data);
+
+        return $this->request($url, 'RAW_POST');
+    }
+
+    /**
+     * Makes the 'PUT' request to the $url with raw $data
+     * Use this method to send raw JSON, etc.
+     *
+     * @param string $url
+     * @param string $data
+     * @return string
+     */
+    public function rawPut($url, $data)
+    {
+        $this->prepareRawPayload($data);
+
+        return $this->request($url, 'PUT');
+    }
+
+    /**
      * Removes the cookie for next cURL transfer
      *
      * @param string $name Name of cookie
@@ -509,6 +539,18 @@ class CurlWrapper
     }
 
     /**
+     * If $value is true sets CURLOPT_FOLLOWLOCATION option to follow any "Location: " header that the server
+     * sends as part of the HTTP header (note this is recursive, PHP will follow as many "Location: " headers
+     * that it is sent, unless CURLOPT_MAXREDIRS option is set).
+     *
+     * @param boolean $value
+     */
+    public function setFollowRedirects($value)
+    {
+        $this->addOption(CURLOPT_FOLLOWLOCATION, $value);
+    }
+
+    /**
      * Sets the contents of the "Referer: " header to be used in a HTTP request
      *
      * @param string $referer
@@ -636,6 +678,18 @@ class CurlWrapper
     }
 
     /**
+     * Sets up options for POST/PUT request with raw $data
+     *
+     * @param string $data
+     */
+    protected function prepareRawPayload($data)
+    {
+        $this->clearRequestParams();
+        $this->addHeader('Content-Length', strlen($data));
+        $this->addOption(CURLOPT_POSTFIELDS, $data);
+    }
+
+    /**
      * Converts the headers array to the cURL's option format array
      *
      * @return array
@@ -675,6 +729,10 @@ class CurlWrapper
 
             case 'POST':
                 $this->addOption(CURLOPT_POST, true);
+            break;
+
+            case 'RAW_POST':
+                $this->addOption(CURLOPT_CUSTOMREQUEST, 'POST');
             break;
 
             default:

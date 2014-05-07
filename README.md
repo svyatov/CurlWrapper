@@ -13,7 +13,7 @@ Install
 
 ### via Composer (recommended)
 
-`php composer.phar require svyatov/curlwrapper '~1.1'`
+`php composer.phar require svyatov/curlwrapper '~1.2'`
 
 ### via download
 
@@ -63,7 +63,30 @@ $response = $curl->get('google.com?q=test', array('some_variable' => 'some_value
 $response = $curl->post('test.com/posts', array('title' => 'Test', 'body' => 'This is a test'));
 ```
 
-All requests return response as is or throw a CurlWrapperException if an error occurred.
+All requests return response body as is or throw a CurlWrapperException if an error occurred.
+
+### Performing POST/PUT request with raw payload
+
+Some times you need to send not encoded POST params, but a raw JSON or other raw data format.
+
+```php
+$response = $curl->rawPost($url, $jsonData);
+$response = $curl->rawPut($url, 'raw random data');
+```
+
+Note that data is sending as as, without any URL-encoding manipulation. Keep that in mind.
+
+You might also need to change the content type header for those types of request:
+
+```php
+$curl->addHeader('Content-Type', 'text/plain');
+// or
+$curl->addHeader('Content-Type', 'application/json');
+// and then
+$response = $curl->rawPost($url, $jsonData);
+```
+
+It depends on API server-side you are working with.
 
 
 ### Getting additional information about request sent
@@ -117,11 +140,13 @@ This file must be writeble or the CurlWrapperException will be thrown.
 
 ### Basic configuration options
 
-You can easily set the referer or user-agent:
+You can easily set the referer, user-agent, timeout and whether or not follow redirects:
 
 ```php
 $curl->setReferer('http://google.com');
 $curl->setUserAgent('some user agent string');
+$curl->setTimeout(15); // seconds
+$curl->setFollowRedirects(true); // to follow redirects
 ```
 
 
@@ -148,6 +173,16 @@ You can set/override any cURL option (see the [curl_setopt documentation](http:/
 ```php
 $curl->addOption(CURLOPT_AUTOREFERER, true);
 ```
+
+
+Changelog
+---------
+
+* **v1.2.0**
+
+    `new` added *rawPost()* and *rawPut()* methods for POST/PUT requests with raw payload
+
+    `new` added *setFollowRedirects()* method for quick access to cURL *CURLOPT_FOLLOWLOCATION* option
 
 Contributing
 ------------
