@@ -48,7 +48,7 @@ $response = $curl->delete($url, $params);
 To use a custom request methods, you can call the `request` method:
 
 ```php
-$response = $curl->request('ANY_CUSTOM_REQUEST_TYPE', $url, $params);
+$response = $curl->request($url, 'ANY_CUSTOM_REQUEST_TYPE', $params);
 ```
 
 All of the built in request methods like `put` and `get` simply wrap the main `request` method. For example, the `post` method is implemented like:
