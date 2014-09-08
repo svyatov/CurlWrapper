@@ -586,6 +586,27 @@ class CurlWrapper
     }
 
     /**
+     * Sets the HTTP Authentication type.
+     *
+     * Defaults to CURLAUTH_BASIC.
+     *
+     * @param int $type
+     */
+    public function setAuth($type = CURLAUTH_BASIC) {
+        $this->addOption(CURLOPT_HTTPAUTH, $type);
+    }
+
+    /**
+     * Sets the username and password for HTTP Authentication.
+     *
+     * @param string $user
+     * @param string $pass
+     */
+    public function setUser($user, $pass) {
+        $this->addOption(CURLOPT_USERPWD, "$user:$pass");
+    }
+
+    /**
      * Sets the value of cookieFile to empty string
      */
     public function unsetCookieFile()
