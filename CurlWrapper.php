@@ -592,18 +592,18 @@ class CurlWrapper
      *
      * @param int $type
      */
-    public function setAuth($type = CURLAUTH_BASIC) {
+    public function setAuthType($type = CURLAUTH_BASIC) {
         $this->addOption(CURLOPT_HTTPAUTH, $type);
     }
 
     /**
      * Sets the username and password for HTTP Authentication.
      *
-     * @param string $user
-     * @param string $pass
+     * @param string $username
+     * @param string $password
      */
-    public function setUser($user, $pass) {
-        $this->addOption(CURLOPT_USERPWD, "$user:$pass");
+    public function setAuthCredentials($username, $password) {
+        $this->addOption(CURLOPT_USERPWD, "$username:$password");
     }
 
     /**

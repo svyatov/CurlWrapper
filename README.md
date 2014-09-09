@@ -153,8 +153,8 @@ $curl->setFollowRedirects(true); // to follow redirects
 
 You can set a username and password for use in HTTP basic auth:
 ```php
-$curl->setAuth();
-$curl->setUser('username', 'password');
+$curl->setAuthType();
+$curl->setAuthCredentials('username', 'password');
 ```
 
 ### Setting custom headers
