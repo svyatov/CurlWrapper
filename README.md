@@ -149,6 +149,13 @@ $curl->setTimeout(15); // seconds
 $curl->setFollowRedirects(true); // to follow redirects
 ```
 
+### HTTP Basic Authentication
+
+You can set a username and password for use in HTTP basic auth:
+```php
+$curl->setAuthType();
+$curl->setAuthCredentials('username', 'password');
+```
 
 ### Setting custom headers
 
