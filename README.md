@@ -13,7 +13,7 @@ Install
 
 ### via Composer (recommended)
 
-`php composer.phar require svyatov/curlwrapper '~1.2'`
+`php composer.phar require svyatov/curlwrapper '~1.3'`
 
 ### via download
 
@@ -184,6 +184,10 @@ $curl->addOption(CURLOPT_AUTOREFERER, true);
 
 Changelog
 ---------
+
+* **v1.3.0**
+
+    `new` added *setAuthType()* and *setAuthCredentials()* methods for HTTP basic authentication
 
 * **v1.2.0**
 
