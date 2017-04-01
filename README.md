@@ -135,7 +135,7 @@ To maintain a session across requests and cookies support you must set file's na
 $curl->setCookieFile('some_file_name.txt');
 ```
 
-This file must be writeable or the CurlWrapperException will be thrown.
+This file must be writable or the CurlWrapperException will be thrown.
 
 
 ### Basic configuration options
